@@ -1,0 +1,54 @@
+1. Források:
+    -Covid adatok (CSV):
+        -https://github.com/owid/covid-19-data/tree/master/public/data
+    -SVG:
+        -https://simplemaps.com/resources/svg-europe
+        -át kellett írni a 2 betűs ID-t 3betűsre, hogy a CSV-vel megegyezzenek
+
+2. Előfeldolgozás:
+    -CSV-ben és az SVG-ben az Iso kódok eltértek, egyikben 3, a másikban a 2 betűs kódok voltak, ezeket egyeztetni kellett --> SVG-ben át lett írva 3 betűssé kézzel
+
+3. Implementáció:
+    3.1 setup():
+        -initCountryData():
+            -Létre lett hozva egy segédosztály (CountryData), ami tartalmazza az iso kódot és a napi esetszámot (egy map aminek a kulcsa a dátum az értéke az esetszám)
+            -Végigmegy a CSV sorain, és összeszedi a szükséges adatokat az egy millió főre eső napi esetszám oszlopból
+            -Lementi a legkorábbi és a legkésőbbi dátumot
+        -daysBetween:
+            -Később kelleni fog, hogy hány nap van a min és a max dátum között a scrollbar használatához
+        -scrollBar létrehozása:
+            -A processinges példában bemutatott scrollBar
+            -Annyival lett bővítve, hogy míg az eredeti scrollBar-ban csak egy értéket lehet változtatni, itt már egy intervallumot tudunk kijelölni
+    3.2 draw():
+        -drawTitle():
+            -Kiírja a címet
+        -drawEuropeSvg():
+            -A CSV nem csak az Európai országokat tartalmazza, így ki kell szűrni azokat, amelyeknek nincs SVG béli megfelelőjük
+            -A kiválasztott országoknak összeszedi a napi esetszámát, hogy később a koordinátarendszerben meg lehessen jeleníteni 
+                -Ezzel együtt a min és max napi esetszámot is kigyűjti
+                -Csak az x értéket (dátum) számoljuk még most, mert az y mappeléséhez fog kelleni a végső min és max érték
+            -Végigmegy újra az országokon és az SVG specifikus feladatokat elvégzi:
+                -Kirajzolja az adott országot:
+                    -Ha ki van jelölve akkor vastagabb határokat kap egy adott színnel
+                    -Színezi az országot az arányokat tekintve
+                -A klikkeléssel kapcsolatos folyamatokat vezérli:
+                    -Ha országra klikkelünk akkor felveszi a kiválasztott országok közé az iso kódját
+        -drawScrollbar():
+            -Megjeleníti a scrollBar-t
+        -drawDates():
+            -A scrollBar alá kirajzolja a kiválasztott dátumokat
+        -drawVerticalLine():
+            -Az SVG-t és a koordinátarendszert elválasztó egyenest rajzolja be
+        -drawCoordinateSystem():
+            -Kirajzolja a koordinátarendszert, ha van ország kiválasztva, egyébként a kiválasztásra felszólító szöveget jelenít meg
+        -drawPoints():
+            -A kiválasztott országokhoz az előre kinyert napi adatokat megjeleníti (itt mapolja az y értékeket, mert ilyenkor már biztosan tudja a min-t és a max-t)
+    3.3 Segédfüggvények:
+        -lerpColors():
+            -A processing csak 2 szín közötti átmenetet támogatja beépítetten
+            -A viridishez és a magmahoz szükség van többre is, ezt biztosítja ez a függvény
+        -getPos1AsDate(), getPos2AsDate:
+            -Átkonvertálja a scrollBar értékeit dátumokká
+        -mouseMoved():
+            -Volt mikor úgy vette a program, mintha többször is klikkeltünk volna 1 helyett, így hozzáadta a kiválasztott országokhoz az országot, de aztán egyből törölte is onnan
+            -Be lett vezetve egy új feltétel a kijelöléshez, ha az előző kijelölés óta nem változott az egér akkor úgy vesszük, hogy véletlen klikkelt többször
