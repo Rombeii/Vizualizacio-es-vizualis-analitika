@@ -30,8 +30,8 @@ final String PLAYER_FILE_PATH = "PlayerStats.csv";
 ParallelCoordinatesView parallelCoordinatesView;
 
 void setup() {
-  //size(1700, 900);
-  fullScreen();
+  size(1700, 900);
+  //fullScreen();
   BRACKET_PART_HEIGHT = height * 0.05;
   BRACKET_PART_WIDTH = width * 0.1;
 
@@ -43,7 +43,7 @@ void setup() {
   initTables();
   initTeamStats();
   initStatsPerTeam();
-  initBracket();
+  initBracket(); //<>//
   initGroupStage();
   
   playerPoints = new HashMap();
@@ -63,6 +63,8 @@ void draw() {
   if (selectedTab.equals("Bracket")) {
     drawBracket();
     drawStar();
+  } else if (selectedTab.equals("Teams")) {
+    drawTeamChart();
   } else if (selectedTab.equals("Players")) {
     parallelCoordinatesView.draw();
   } else if (selectedTab.equals("Roles")) {
@@ -86,23 +88,32 @@ void drawTabs() {
   fill(0);
   text("Bracket", width * 0.001, height * 0.01, width * 0.08, height * 0.03);
   
-  if(selectedTab.equals("Players")) {
+  if(selectedTab.equals("Teams")) {
     fill(255);
   } else {
     fill(224);
   }
   rect(width * 0.08, height * 0.01, width * 0.16, height * 0.03);
   fill(0);
-  text("Players",width * 0.08 + width * 0.001, height * 0.01, width * 0.16, height * 0.03);
+  text("Teams" ,width * 0.08 + width * 0.001, height * 0.01, width * 0.16, height * 0.03);
+  
+  if(selectedTab.equals("Players")) {
+    fill(255);
+  } else {
+    fill(224);
+  }
+  rect(width * 0.16, height * 0.01, width * 0.16, height * 0.03);
+  fill(0);
+  text("Players",width * 0.16 + width * 0.001, height * 0.01, width * 0.16, height * 0.03);
   
   if(selectedTab.equals("Roles")) {
     fill(255);
   } else {
     fill(224);
   }
-  rect(width * 0.16, height * 0.01, width * 0.08, height * 0.03);
+  rect(width * 0.24, height * 0.01, width * 0.08, height * 0.03);
   fill(0);
-  text("Roles", width * 0.16 + width * 0.001, height * 0.01, width * 0.08, height * 0.03);
+  text("Roles", width * 0.24 + width * 0.001, height * 0.01, width * 0.08, height * 0.03);
   
 }
 
@@ -175,6 +186,7 @@ void initStatsPerTeam() {
     }
     statsPerTeam.put(teamName, stats);
   }
+  
 }
 
 void initBracket() {
@@ -389,9 +401,12 @@ void mousePressed(){
       selectedTab = "Bracket";
     }
     if (mouseX >  width * 0.08 && mouseX <  width * 0.16) {
-      selectedTab = "Players";
+      selectedTab = "Teams";
     }
     if (mouseX >  width * 0.16 && mouseX < width * 0.24) {
+      selectedTab = "Players";
+    }
+    if (mouseX >  width * 0.24 && mouseX < width * 0.32) {
       selectedTab = "Roles";
     }
   }
@@ -437,6 +452,73 @@ ArrayList<Sample> createSamplesFrom(String dataFilePath){
     samples.add(new Sample(features, classLabel, name, team));
   }
   return samples;
+}
+
+void drawTeamChart() {
+  stroke(0);
+  strokeWeight(1);
+  fill(0);
+  line(width * 0.12, height * 0.2, width * 0.84, height * 0.2);
+  line(width * 0.12, height * 0.15, width * 0.84, height * 0.15);
+  line(width * 0.12, height * 0.78, width * 0.84, height * 0.78);
+  for (int i = 1; i < statsToWatch.length + 3; i++) {
+    float mx = i * width * 0.12;
+    line(mx, height * 0.15, mx, height * 0.78);
+    if(i > 4 && teamStats.get(i - 3).min < 0) {
+      mx = (i - 0.5) * width * 0.12;
+      println(mx);
+      line(mx, height * 0.2, mx, height * 0.78);
+    }
+  }
+  
+  text("Team name", width * 0.125, height * 0.19);
+  text("Average kills", width * 0.245, height * 0.19);
+  text("Kill Death ratio", width * 0.365, height * 0.19);
+  text("Early game rating", width * 0.485, height * 0.19);
+  text("Mid/Lategame rating", width * 0.6, height * 0.19);
+  text("Gold diff at 15", width * 0.725, height * 0.19);
+  
+  int rowCount = teams.getRowCount();  
+  
+  for (int row = 1; row < rowCount; row++) {
+    fill(0);
+    text(teams.getString(row, 0), width * 0.122, height * 0.2 + row * height * 0.035);
+    for (int i = 0; i < statsToWatch.length; i++) {
+      boolean isPositive = teamStats.get(i).min > 0; 
+      float mapFrom = isPositive ? teamStats.get(i).min : -1 * teamStats.get(i).max; 
+      float rectLength = map(teams.getFloat(row, statsToWatch[i]),
+                             mapFrom, teamStats.get(i).max,
+                             width * 0.125 + (i + 1)  * width * 0.12,
+                             width * 0.125 + (i + 1) * width * 0.12 + width * 0.11);
+      if(mouseY > height * 0.2 + (row - 1) * height * 0.035 && mouseY < height * 0.2 + (row) * height * 0.035) {
+        fill(#469990);
+      } else {
+        fill(#000075);
+      }
+
+      if(!isPositive) {
+        rect(width * 0.120 + (i + 1.5)  * width * 0.12,
+        height * 0.1805 + row * height * 0.03535,
+        (rectLength - (width * 0.122 + (i + 1)  * width * 0.12)) / 2,
+        height * 0.015);
+      } else {
+        rect(width * 0.122 + (i + 1)  * width * 0.12,
+        height * 0.1805 + row * height * 0.03535,
+        rectLength - (width * 0.122 + (i + 1)  * width * 0.12),
+        height * 0.015);
+      }
+
+      //text(teams.getFloat(row, statsToWatch[i]), width * 0.122 + (i + 1)  * width * 0.12, height * 0.2 + row * height * 0.035);
+    }
+  }
+}
+
+void keyPressed() {
+  if (key == CODED) {
+    if (keyCode == LEFT) {
+      teams.sort(4);
+    }
+  }
 }
 
 void drawPointChart() {
