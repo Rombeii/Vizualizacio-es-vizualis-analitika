@@ -1,4 +1,4 @@
-import java.util.*; //<>//
+import java.util.*;
 
 Table players;
 Table teams;
@@ -30,8 +30,8 @@ final String PLAYER_FILE_PATH = "PlayerStats.csv";
 ParallelCoordinatesView parallelCoordinatesView;
 
 void setup() {
-  size(1700, 900);
-  //fullScreen();
+  //size(1700, 900);
+  fullScreen();
   BRACKET_PART_HEIGHT = height * 0.05;
   BRACKET_PART_WIDTH = width * 0.1;
 
@@ -43,8 +43,12 @@ void setup() {
   initTables();
   initTeamStats();
   initStatsPerTeam();
-  initBracket(); //<>//
+  initBracket();
   initGroupStage();
+  
+  teams.removeRow(0);
+  teams.setColumnType(12, "float");
+  teams.setColumnType(13, "float");
   
   playerPoints = new HashMap();
   
@@ -387,7 +391,23 @@ void createBaseStar() {
 
 void mouseClicked(){
   parallelCoordinatesView.onMouseClickedOn(mouseX, mouseY);
+  if(selectedTab.equals("Teams")) {
+    sortTable(mouseX, mouseY);
+  }
 }
+
+void sortTable(float x, float y) {
+  if(x >  width * 0.12 && x < 2 * width * 0.12 && y < height * 0.2 && y > height * 0.15) { 
+    teams.sort(0);
+  }
+  
+  for(int i = 0; i < statsToWatch.length; i++) {
+      if(x > (i + 2) * width * 0.12 && x < (i + 3) * width * 0.12 && y < height * 0.2 && y > height * 0.15) { 
+        teams.sortReverse(statsToWatch[i]); //<>//
+      }
+  }
+}
+
 void mouseMoved(){
   mouseMovedAfterAdd = true;
   if(selectedTab == "Players") {
@@ -466,7 +486,6 @@ void drawTeamChart() {
     line(mx, height * 0.15, mx, height * 0.78);
     if(i > 4 && teamStats.get(i - 3).min < 0) {
       mx = (i - 0.5) * width * 0.12;
-      println(mx);
       line(mx, height * 0.2, mx, height * 0.78);
     }
   }
@@ -480,9 +499,9 @@ void drawTeamChart() {
   
   int rowCount = teams.getRowCount();  
   
-  for (int row = 1; row < rowCount; row++) {
+  for (int row = 0; row < rowCount; row++) {
     fill(0);
-    text(teams.getString(row, 0), width * 0.122, height * 0.2 + row * height * 0.035);
+    text(teams.getString(row, 0), width * 0.122, height * 0.2 + (row + 1) * height * 0.035);
     for (int i = 0; i < statsToWatch.length; i++) {
       boolean isPositive = teamStats.get(i).min > 0; 
       float mapFrom = isPositive ? teamStats.get(i).min : -1 * teamStats.get(i).max; 
@@ -490,7 +509,7 @@ void drawTeamChart() {
                              mapFrom, teamStats.get(i).max,
                              width * 0.125 + (i + 1)  * width * 0.12,
                              width * 0.125 + (i + 1) * width * 0.12 + width * 0.11);
-      if(mouseY > height * 0.2 + (row - 1) * height * 0.035 && mouseY < height * 0.2 + (row) * height * 0.035) {
+      if(mouseY > height * 0.2 + row  * height * 0.035 + height * 0.01 && mouseY < height * 0.2 + (row + 1) * height * 0.035) {
         fill(#469990);
       } else {
         fill(#000075);
@@ -498,25 +517,17 @@ void drawTeamChart() {
 
       if(!isPositive) {
         rect(width * 0.120 + (i + 1.5)  * width * 0.12,
-        height * 0.1805 + row * height * 0.03535,
+        height * 0.1805 + (row + 1) * height * 0.03535,
         (rectLength - (width * 0.122 + (i + 1)  * width * 0.12)) / 2,
         height * 0.015);
       } else {
         rect(width * 0.122 + (i + 1)  * width * 0.12,
-        height * 0.1805 + row * height * 0.03535,
+        height * 0.1805 + (row + 1) * height * 0.03535,
         rectLength - (width * 0.122 + (i + 1)  * width * 0.12),
         height * 0.015);
       }
 
       //text(teams.getFloat(row, statsToWatch[i]), width * 0.122 + (i + 1)  * width * 0.12, height * 0.2 + row * height * 0.035);
-    }
-  }
-}
-
-void keyPressed() {
-  if (key == CODED) {
-    if (keyCode == LEFT) {
-      teams.sort(4);
     }
   }
 }
