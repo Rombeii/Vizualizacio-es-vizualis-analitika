@@ -642,6 +642,11 @@ void drawPoints(float xLoc, float yLoc, float cWidth, float cHeight) {
     selectedPlayer = player;
   } else {
     selectedPlayer = null;
-  }
-    
+  } 
 }
+
+ void keyPressed() {
+   if(selectedTab.equals("Players")) {
+     this.parallelCoordinatesView.onKeyPressed();
+   }
+ }

@@ -14,6 +14,7 @@ public class ParallelCoordinatesView extends Viewport {
   private String[] classLabels;
 
   private ArrayList<Sample> highlightedSamples;
+  private ArrayList<String> drawnClassLabels;
 
   private ArrayList<Sample> samples;
 
@@ -34,8 +35,8 @@ public class ParallelCoordinatesView extends Viewport {
     this.adjustedAxis = null;
     this.prevHoveredComment = "";
     this.hoveredComment = "";
-    println("init");
 
+    this.drawnClassLabels = new ArrayList();
     this.classColors = new HashMap<String, Integer>();
     int colorIndex = 0;
     for (int i = 0; i < this.samples.size(); i++) {
@@ -52,6 +53,7 @@ public class ParallelCoordinatesView extends Viewport {
       }
     }
 
+    this.drawnClassLabels = new ArrayList(this.classColors.keySet());
     this.classLabels = this.classColors.keySet().toArray(new String[0]);
   }
 
@@ -103,6 +105,9 @@ public class ParallelCoordinatesView extends Viewport {
     highlightedSamples = new ArrayList();
     for (int i = 0; i < this.samples.size(); i++) {
       Sample sample = this.samples.get(i);
+      if(!drawnClassLabels.contains(sample.getClassLabel())) {
+        continue;
+      }
       if (sample.isHighlighted()) {
         strokeWeight(2.0f);
         stroke(255, 178, 102);
@@ -172,9 +177,10 @@ public class ParallelCoordinatesView extends Viewport {
     strokeWeight(2.0f);
     for (int i = 0; i < this.classLabels.length; i++) {
       String classLabel = this.classLabels[i];
-      if (this.selectedAxis == null) {
+      if (drawnClassLabels.contains(classLabel)) {
         color lineColor = this.classColors.get(classLabel);
         stroke(lineColor);
+        fill(0);
       } else {
         fill(180);
         stroke(180);
@@ -294,5 +300,27 @@ public class ParallelCoordinatesView extends Viewport {
     for (int i = 0; i < this.samples.size(); i++)
       println(i + ": " + this.samples.get(i).toString());
     println("---------------------");
+  }
+  
+  public void onKeyPressed() {
+    if (key == '1') {
+      changeClassVisibility("ADC");
+    } else if (key == '2') {
+      changeClassVisibility("Top");
+    } else if (key == '3') {
+      changeClassVisibility("Support");
+    } else if (key == '4') {
+      changeClassVisibility("Jungle");
+    } else if (key == '5') {
+      changeClassVisibility("Middle");
+    }
+  }
+  
+  private void changeClassVisibility(String classLabel) {
+    if(drawnClassLabels.contains(classLabel)) {
+      drawnClassLabels.remove(classLabel);
+    } else {
+      drawnClassLabels.add(classLabel);
+    }
   }
 }
