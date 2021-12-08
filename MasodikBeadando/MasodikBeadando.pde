@@ -496,6 +496,8 @@ void drawTeamChart() {
     if(i > 4 && teamStats.get(i - 3).min < 0) {
       mx = (i - 1.15) * width * 0.15;
       line(mx, height * 0.2, mx, height * 0.78);
+      textAlign(CENTER);
+      text("0", mx, height * 0.8);
     }
   }
   textAlign(LEFT);
