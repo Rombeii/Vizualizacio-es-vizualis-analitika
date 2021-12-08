@@ -30,8 +30,8 @@ final String PLAYER_FILE_PATH = "PlayerStats.csv";
 ParallelCoordinatesView parallelCoordinatesView;
 
 void setup() {
-  size(1700, 900);
-  //fullScreen();
+  //size(1700, 900);
+  fullScreen();
   BRACKET_PART_HEIGHT = height * 0.05;
   BRACKET_PART_WIDTH = width * 0.1;
 
