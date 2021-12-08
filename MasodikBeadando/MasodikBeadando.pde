@@ -30,8 +30,8 @@ final String PLAYER_FILE_PATH = "PlayerStats.csv";
 ParallelCoordinatesView parallelCoordinatesView;
 
 void setup() {
-  //size(1700, 900);
-  fullScreen();
+  size(1700, 900);
+  //fullScreen();
   BRACKET_PART_HEIGHT = height * 0.05;
   BRACKET_PART_WIDTH = width * 0.1;
 
@@ -151,10 +151,10 @@ void drawStar() {
   scale(2.0);
   if(selectedTeam != "" || highlightedTeam != "")
     createBaseStar();
-  fill(#000075, 200);
+  fill(#000075, 175);
   if(selectedTeam != "")
     star2(0, 0, test);
-  fill(#800000, 200);
+  fill(#800000, 175);
   if(highlightedTeam != "")
     star2(0, 0, test2);
   popMatrix();
@@ -397,12 +397,12 @@ void mouseClicked(){
 }
 
 void sortTable(float x, float y) {
-  if(x >  width * 0.12 && x < 2 * width * 0.12 && y < height * 0.2 && y > height * 0.15) { 
+  if(x >  width * 0.05 && x < width * 0.05 + width * 0.15 && y < height * 0.2 && y > height * 0.15) { 
     teams.sort(0);
   }
   
   for(int i = 0; i < statsToWatch.length; i++) {
-      if(x > (i + 2) * width * 0.12 && x < (i + 3) * width * 0.12 && y < height * 0.2 && y > height * 0.15) { 
+      if(x > width * 0.05 + (i + 1) * width * 0.15 && x < width * 0.05 + (i + 2) * width * 0.15 && y < height * 0.2 && y > height * 0.15) { 
         teams.sortReverse(statsToWatch[i]); //<>//
       }
   }
@@ -484,12 +484,22 @@ void drawTeamChart() {
   for (int i = 1; i < statsToWatch.length + 3; i++) {
     float mx = width * 0.05 + (i - 1) * width * 0.15;
     line(mx, height * 0.15, mx, height * 0.78);
+    if(i > 2) {
+      textSize(15);
+      float textStart = width * 0.05 + (i - 2) * width * 0.15;
+      float textEnd = width * 0.04 + (i - 1) * width * 0.15;
+      textAlign(LEFT);
+      text(nf(teamStats.get(i - 3).min), textStart, height * 0.8);
+      textAlign(RIGHT);
+      text(nf(teamStats.get(i - 3).max), textEnd, height * 0.8);
+    }
     if(i > 4 && teamStats.get(i - 3).min < 0) {
       mx = (i - 1.15) * width * 0.15;
       line(mx, height * 0.2, mx, height * 0.78);
     }
   }
-  
+  textAlign(LEFT);
+  textSize(20);
   text("Team name", width * 0.055, height * 0.19);
   text("Average kills", width * 0.055 + 1 * width * 0.15, height * 0.19);
   text("Kill Death ratio", width * 0.055 + 2 * width * 0.15, height * 0.19);
@@ -606,6 +616,7 @@ void drawCoordSystem(float xLoc, float yLoc, float cWidth, float cHeight) {
 
 void drawPoints(float xLoc, float yLoc, float cWidth, float cHeight) {
   int rowCount = players.getRowCount();
+  HashMap<Point, String> selectedPoints = new HashMap();;
   strokeWeight(5);
   for (int row = 2; row < rowCount; row++) {
     String pos = players.getString(row, 2);
@@ -613,25 +624,10 @@ void drawPoints(float xLoc, float yLoc, float cWidth, float cHeight) {
     float x = map(players.getFloat(row, 20), 0, 40, 0, cWidth);
     float y = map(players.getFloat(row, 23), 0, 40, 0, cWidth);
     playerPoints.put(new Point(xLoc + x, yLoc + cHeight - y), new PlayerStat(players.getString(row, 0), players.getString(row, 1)));
-    if (pos.equals("Top")) {
-      fill(#3cb44b);
-      stroke(#3cb44b);
-    } else if (pos.equals("Jungle")) {
-      fill(#42d4f4);
-      stroke(#42d4f4);
-    } else if (pos.equals("Middle")) {
-      fill(#f032e6);
-      stroke(#f032e6);
-    } else if (pos.equals("ADC")) {
-      fill(#f58231);
-      stroke(#f58231);
-    } else {
-      fill(#469990);
-      stroke(#469990);
-    }
+    setFillAndStrokeByPos(pos);
     
     if(selectedPlayer != null && selectedPlayer.teamName.equals(teamName))
-        stroke(#000075);
+      selectedPoints.put(new Point(xLoc + x, yLoc + cHeight - y), pos);
     ellipse(xLoc + x, yLoc + cHeight - y, 10.0, 10.0);
   }
   
@@ -653,7 +649,32 @@ void drawPoints(float xLoc, float yLoc, float cWidth, float cHeight) {
     selectedPlayer = player;
   } else {
     selectedPlayer = null;
-  } 
+  }
+  
+  for (Point point : selectedPoints.keySet()) {
+    setFillAndStrokeByPos(selectedPoints.get(point));
+    stroke(#000075);
+    ellipse(point.x, point.y, 10.0, 10.0);
+  }
+}
+
+void setFillAndStrokeByPos(String pos) {
+      if (pos.equals("Top")) {
+      fill(#3cb44b);
+      stroke(#3cb44b);
+    } else if (pos.equals("Jungle")) {
+      fill(#42d4f4);
+      stroke(#42d4f4);
+    } else if (pos.equals("Middle")) {
+      fill(#f032e6);
+      stroke(#f032e6);
+    } else if (pos.equals("ADC")) {
+      fill(#f58231);
+      stroke(#f58231);
+    } else {
+      fill(#469990);
+      stroke(#469990);
+    }
 }
 
  void keyPressed() {
