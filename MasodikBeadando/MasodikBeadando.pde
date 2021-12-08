@@ -478,37 +478,39 @@ void drawTeamChart() {
   stroke(0);
   strokeWeight(1);
   fill(0);
-  line(width * 0.12, height * 0.2, width * 0.84, height * 0.2);
-  line(width * 0.12, height * 0.15, width * 0.84, height * 0.15);
-  line(width * 0.12, height * 0.78, width * 0.84, height * 0.78);
+  line(width * 0.05, height * 0.2, width * 0.95, height * 0.2);
+  line(width * 0.05, height * 0.15, width * 0.95, height * 0.15);
+  line(width * 0.05, height * 0.78, width * 0.95, height * 0.78);
   for (int i = 1; i < statsToWatch.length + 3; i++) {
-    float mx = i * width * 0.12;
+    float mx = width * 0.05 + (i - 1) * width * 0.15;
     line(mx, height * 0.15, mx, height * 0.78);
     if(i > 4 && teamStats.get(i - 3).min < 0) {
-      mx = (i - 0.5) * width * 0.12;
+      mx = (i - 1.15) * width * 0.15;
       line(mx, height * 0.2, mx, height * 0.78);
     }
   }
   
-  text("Team name", width * 0.125, height * 0.19);
-  text("Average kills", width * 0.245, height * 0.19);
-  text("Kill Death ratio", width * 0.365, height * 0.19);
-  text("Early game rating", width * 0.485, height * 0.19);
-  text("Mid/Lategame rating", width * 0.6, height * 0.19);
-  text("Gold diff at 15", width * 0.725, height * 0.19);
+  text("Team name", width * 0.055, height * 0.19);
+  text("Average kills", width * 0.055 + 1 * width * 0.15, height * 0.19);
+  text("Kill Death ratio", width * 0.055 + 2 * width * 0.15, height * 0.19);
+  text("Early game rating", width * 0.055 + 3 * width * 0.15, height * 0.19);
+  text("Mid/Lategame rating", width * 0.055 + 4 * width * 0.15, height * 0.19);
+  text("Gold diff at 15", width * 0.055 + 5 * width * 0.15, height * 0.19);
   
   int rowCount = teams.getRowCount();  
   
   for (int row = 0; row < rowCount; row++) {
     fill(0);
-    text(teams.getString(row, 0), width * 0.122, height * 0.2 + (row + 1) * height * 0.035);
+    text(teams.getString(row, 0), width * 0.052, height * 0.2 + (row + 1) * height * 0.035);
     for (int i = 0; i < statsToWatch.length; i++) {
-      boolean isPositive = teamStats.get(i).min > 0; 
-      float mapFrom = isPositive ? teamStats.get(i).min : -1 * teamStats.get(i).max; 
+      boolean isPositive = teamStats.get(i).min > 0;
+      //float mapFrom = isPositive ? teamStats.get(i).min : -1 * teamStats.get(i).max; 
+      float mapFrom = isPositive ? teamStats.get(i).min : 0;
+      //float mapTo = teamStats.get(i).max > teamStats.get(i).min * -1 ? teamStats.get(i).max : ;
       float rectLength = map(teams.getFloat(row, statsToWatch[i]),
-                             mapFrom, teamStats.get(i).max,
-                             width * 0.125 + (i + 1)  * width * 0.12,
-                             width * 0.125 + (i + 1) * width * 0.12 + width * 0.11);
+                             mapFrom, isPositive ? teamStats.get(i).max : -1 * teamStats.get(i).min,
+                             width * 0.125 + (i + 1)  * width * 0.15,
+                             width * 0.155 + (i + 1) * width * 0.15 + width * 0.11);
       if(mouseY > height * 0.2 + row  * height * 0.035 + height * 0.01 && mouseY < height * 0.2 + (row + 1) * height * 0.035) {
         fill(#469990);
       } else {
@@ -516,14 +518,14 @@ void drawTeamChart() {
       }
 
       if(!isPositive) {
-        rect(width * 0.120 + (i + 1.5)  * width * 0.12,
+        rect(width * 0.052 + (i + 1.5)  * width * 0.15,
         height * 0.1805 + (row + 1) * height * 0.03535,
-        (rectLength - (width * 0.122 + (i + 1)  * width * 0.12)) / 2,
+        (rectLength - (width * 0.122 + (i + 1)  * width * 0.15)) / 2,
         height * 0.015);
       } else {
-        rect(width * 0.122 + (i + 1)  * width * 0.12,
+        rect(width * 0.05 + (i + 1)  * width * 0.15,
         height * 0.1805 + (row + 1) * height * 0.03535,
-        rectLength - (width * 0.122 + (i + 1)  * width * 0.12),
+        rectLength - (width * 0.122 + (i + 1)  * width * 0.15),
         height * 0.015);
       }
 
@@ -533,8 +535,8 @@ void drawTeamChart() {
 }
 
 void drawPointChart() {
-  drawCoordSystem(width * 0.15, height * 0.2, height * 0.6, height * 0.6);
-  drawPoints(width * 0.15, height * 0.2, height * 0.6, height * 0.6);
+  drawCoordSystem(width * 0.15, height * 0.2, height * 0.7, height * 0.7);
+  drawPoints(width * 0.15, height * 0.2, height * 0.7, height * 0.7);
 }
 
 void drawCoordSystem(float xLoc, float yLoc, float cWidth, float cHeight) {
@@ -549,6 +551,15 @@ void drawCoordSystem(float xLoc, float yLoc, float cWidth, float cHeight) {
     line(xLoc + v, yLoc, xLoc + v, yLoc + cHeight);
     line(xLoc, yLoc + cHeight - v, xLoc + cWidth, yLoc + cHeight - v);
   }
+  
+  for(int i = 0; i <= 4; i += 1) {
+    stroke(120);
+    strokeWeight(0.2);
+    float v = map(i, 0, 4, 0, cWidth);
+    text(nf(map(i, 0, 4, 0, 40), 0, 0), xLoc + v, yLoc * 4.5);
+    text(nf(map(i, 0, 4, 0, 40), 0, 0), xLoc, yLoc + cHeight - v, xLoc + cWidth);
+  }
+  
   stroke(0);
   strokeWeight(1.0);
   pushMatrix();
@@ -561,34 +572,34 @@ void drawCoordSystem(float xLoc, float yLoc, float cWidth, float cHeight) {
   
   fill(#3cb44b);
   stroke(#3cb44b);
-  ellipse(xLoc + xLoc * 2.35, yLoc * 2, 10.0, 10.0);
-  text("Top", xLoc + xLoc * 2.38, yLoc * 2.035);
+  ellipse(xLoc + xLoc * 2.75, yLoc * 2, 10.0, 10.0);
+  text("Top", xLoc + xLoc * 2.78, yLoc * 2.035);
   
   fill(#42d4f4);
   stroke(#42d4f4);
-  ellipse(xLoc + xLoc * 2.35, yLoc * 2.2, 10.0, 10.0);
-  text("Jungle", xLoc + xLoc * 2.38, yLoc * 2.235);
+  ellipse(xLoc + xLoc * 2.75, yLoc * 2.2, 10.0, 10.0);
+  text("Jungle", xLoc + xLoc * 2.78, yLoc * 2.235);
   
   fill(#f032e6);
   stroke(#f032e6);
-  ellipse(xLoc + xLoc * 2.35, yLoc * 2.4, 10.0, 10.0);
-  text("Middle", xLoc + xLoc * 2.38, yLoc * 2.435);
+  ellipse(xLoc + xLoc * 2.75, yLoc * 2.4, 10.0, 10.0);
+  text("Middle", xLoc + xLoc * 2.78, yLoc * 2.435);
   
   fill(#f58231);
   stroke(#f58231);
-  ellipse(xLoc + xLoc * 2.35, yLoc * 2.6, 10.0, 10.0);
-  text("ADC", xLoc + xLoc * 2.38, yLoc * 2.635);
+  ellipse(xLoc + xLoc * 2.75, yLoc * 2.6, 10.0, 10.0);
+  text("ADC", xLoc + xLoc * 2.78, yLoc * 2.635);
   
   fill(#469990);
   stroke(#469990);
-  ellipse(xLoc + xLoc * 2.35, yLoc * 2.8, 10.0, 10.0);
-  text("Support", xLoc + xLoc * 2.38, yLoc * 2.835);
+  ellipse(xLoc + xLoc * 2.75, yLoc * 2.8, 10.0, 10.0);
+  text("Support", xLoc + xLoc * 2.78, yLoc * 2.835);
   
   fill(#ffffff);
   stroke(#000075);
-  ellipse(xLoc + xLoc * 2.35, yLoc * 3.0, 10.0, 10.0);
+  ellipse(xLoc + xLoc * 2.75, yLoc * 3.0, 10.0, 10.0);
   fill(#000075);
-  text("Teammates", xLoc + xLoc * 2.38, yLoc * 3.035);
+  text("Teammates", xLoc + xLoc * 2.78, yLoc * 3.035);
 
   
 }

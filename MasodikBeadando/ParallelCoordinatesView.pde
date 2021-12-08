@@ -49,10 +49,15 @@ public class ParallelCoordinatesView extends Viewport {
         } else {
           lineColor = color((int)random(0, 250), (int)random(0, 250), (int)random(0, 250));
         }
-        this.classColors.put(classLabel, lineColor);
+        //this.classColors.put(classLabel, lineColor);
       }
     }
 
+    this.classColors.put("Top", #4363d8);
+    this.classColors.put("ADC", #e6194B);
+    this.classColors.put("Middle", #000000);
+    this.classColors.put("Jungle", #f032e6);
+    this.classColors.put("Support", #3cb44b);
     this.drawnClassLabels = new ArrayList(this.classColors.keySet());
     this.classLabels = this.classColors.keySet().toArray(new String[0]);
   }
@@ -134,7 +139,7 @@ public class ParallelCoordinatesView extends Viewport {
             stroke(lineColor);
           }
         } else {
-          stroke(180);
+          stroke(230);
         }
       }
       for (int j = 1; j < sample.getNumberOfFeatures(); j++) {
